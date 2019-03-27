@@ -1,9 +1,16 @@
+package connect;
 import java.util.Scanner;
+import StdLib.StdOut;
+import StdLib.StdIn;
 import java.io.File;
+import java.io.FileWriter;
 import java.awt.event.KeyEvent;
 import javax.swing.JOptionPane;
 
 public class connect4 {
+	// Scanner for inputing text from the terminal
+	static Scanner terminalInput = new Scanner(System.in);
+	
     //Board size
     static int X = 6;
     static int Y = 7;
@@ -12,14 +19,23 @@ public class connect4 {
     public static void main (String[] args) {
         //TODO: Read in a comamnd line argument that states whether the program will be in either terminal
         //      mode (T) or in GUI mode (G) [Hint: use args and the variable below]
-
+    	
+    	
         //Sets whether the game is in terminal mode or GUI mode
         boolean gui = false;
+
 
         int input = 0;
         int pos = -1;
         //The 6-by-7 grid that represents the gameboard, it is initially empty
         int [][] grid = new int [X][Y];
+        for(int i = 0; i < X; i++)
+        {
+        	for(int j = 0; j < Y; j++)
+        	{
+        		grid[i][j] = '*';
+        	}
+        }
         //Shows which player's turn it is, true for player 1 and false for player 2
         boolean player1 = true;
         //Shows the number of special tokens a player has left
@@ -42,15 +58,22 @@ public class connect4 {
                     curppowers = p2powers;
                 }
                 StdOut.println("Choose your move: \n 1. Play Normal \n 2. Play Bomb ("+curppowers[0]+" left) \n 3. Play Teleportation ("+curppowers[1]+" left) \n 4. Play Colour Changer ("+curppowers[2]+" left)\n 5. Display Gameboard \n 6. Load Test File \n 0. Exit");
-                //TODO: Read in chosen move, check that the data is numeric
+                input = StdIn.readInt();
                 switch(input) {
                     case 0: Exit();
                             break;
-
-                    case 1: StdOut.println("Choose a column to play in:");
-                            //TODO: Read in chosen column
-                            //TODO: Check that value is within the given bounds, check that the data is numeric
-                            //TODO: Play normal disc in chosen column
+                    case 1: StdOut.println("Choose a column to play in:\n");                   			
+	                    	int column = StdIn.readInt();
+	                    	ValidateColumn(column);
+	                    	Play(column, grid, player1);
+	                    	if(player1)
+	                    	{
+	                    		player1 = false;
+	                    	}
+	                    	else
+	                    	{
+	                    		player1 = true;
+	                    	}
                             break;
 
                     case 2: StdOut.println("Choose a column to play in:");
@@ -85,9 +108,14 @@ public class connect4 {
                     		//Reads in a test file and loads the gameboard from it.
                             player1 = !player1;
                             break;
+                    case 7: Save(StdIn.readString(), grid);
+		            player1 = !player1;
+		            break;
 
-					default: //TODO: Invalid choice was made, print out an error message but do not switch player turns
-                            break;
+					default: 
+							StdOut.println("Please enter a valid option");
+							continue;
+           
                 }
 				//Displays the grid after a new move was played
                 Display(grid);
@@ -103,12 +131,54 @@ public class connect4 {
         }
         
     }
+    
+    /** 
+     * Validates the column number which the user enters and returns true if the value is both an integer and between 0 and 6 (inclusive)
+     */
+    public static void ValidateColumn(int column)
+    {
+    	boolean validSelection = false;
+    	while(!validSelection)
+    	{
+    		if(column == (int)column)
+        	{
+        		if(column >= 0 && column < 7)
+        		{
+        			validSelection = true;
+        		}
+        		else
+        		{
+        				StdOut.println("Please make a valid selection\n");
+        				StdOut.println("Choose a column to play in:\n");
+        				column = terminalInput.nextInt();
+        		}	
+        	}
+    		else
+    		{
+    			StdOut.println("Please make a valid selection");
+    			StdOut.print("Choose a column to play in:");
+				column = terminalInput.nextInt();                    			
+        	}
+    	}
 
+    }
+    
     /**
      * Displays the grid, empty spots as *, player 1 as R and player 2 as Y. Shows column and row numbers at the top.
      * @param grid  The current board state
      */
     public static void Display (int [][] grid) {
+    	
+    	for(int i = 0; i < X; i++)
+    	{
+    		for(int j = 0; j < Y; j++)
+    		{
+    			StdOut.print((char)grid[i][j]);
+    			StdOut.print(" ");
+    		}
+    		StdOut.println("\n");	
+    	}
+    	
         //TODO: Display the given board state with empty spots as *, player 1 as R and player 2 as Y. Shows column and row numbers at the top.
     }
 
@@ -116,7 +186,7 @@ public class connect4 {
      * Exits the current game state
      */
     public static void Exit() {
-        //TODO: Exit the game
+        System.exit(0);
     }
 
     /**
@@ -128,6 +198,42 @@ public class connect4 {
      * @return grid     The modified board state
      */
     public static int [][] Play (int i, int [][] grid, boolean player1) {
+    	//int letter = ( player1 ? 'R' : 'Y'  );
+    	/*
+    	 * TODO: ASK Lecturer/Tutor if above can be used 
+    	 */
+    	
+    	int letter;
+    	if(player1)
+    	{
+    		letter = 'R';
+    	}
+    	else
+    	{
+    		letter = 'Y';
+    	}
+    	
+    	boolean columnFull = true;
+    	int column = i;
+    	while(columnFull)
+    	{
+    		columnFull = true;
+    		for(int row = X - 1; row >= 0; row--)
+    		{
+    			if(grid[row][column] == 42)
+    			{
+    				columnFull = false;
+    				grid[row][column] = letter;
+    				break;
+    			}
+    		}
+    		if(columnFull)
+    		{
+				StdOut.print("The column you chose is full, please choose another one:");
+				column = StdIn.readInt();   			
+    		}
+
+    	}
         //TODO: Play a normal disc of the given colour, if the column is full, print out the message: "Column is full."
         return grid;
     }
@@ -222,24 +328,10 @@ public class connect4 {
      */
     public static void Debug(String line) {
         if (DEBUG)
-            System.out.println(line);
+            StdOut.println(line);
     }
-}
+    
 
-
-
-
-If you have already started working on the skeleton, just copy the following code into your current file. If you have not, please start working in the latest skeleton available on SUNLearn.
-
-1. Within the switch statement, simply add the following code:
-//START COPY
-                    case 7: Save(StdIn.readString(), grid);
-				            player1 = !player1;
-				            break;
-//END COPY
-
-2. Outside of the main method's braces, but inside the class braces, add this method:
-//START COPY
 public static int [][] Save(String name, int [][] grid) {
     	try{
     		FileWriter fileWriter = new FileWriter(name+".txt");
@@ -255,4 +347,5 @@ public static int [][] Save(String name, int [][] grid) {
         }
     	return grid;
     }
-    //END COPY
+}
+
