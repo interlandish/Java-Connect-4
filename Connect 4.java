@@ -1,15 +1,18 @@
 package connect;
 import java.util.Scanner;
 import StdLib.StdOut;
+import StdLib.StdDraw;
 import StdLib.StdIn;
 import java.io.File;
 import java.io.FileWriter;
 import java.awt.event.KeyEvent;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class connect4 {
 	// Scanner for inputing text from the terminal
 	static Scanner terminalInput = new Scanner(System.in);
+	static boolean GraphicsMode = true;
 	
     //Board size
     static int X = 6;
@@ -22,8 +25,7 @@ public class connect4 {
     	
     	
         //Sets whether the game is in terminal mode or GUI mode
-        boolean gui = false;
-
+        boolean gui = true;
 
         int input = 0;
         int pos = -1;
@@ -50,6 +52,7 @@ public class connect4 {
             //Array for current player's number of power storage
             int [] curppowers = new int[3];
             while (true) {
+
                 if (player1) {
                     StdOut.println("Player 1's turn (You are Red):");
                     curppowers = p1powers;
@@ -127,6 +130,148 @@ public class connect4 {
             }
         } else {
             //Graphics mode
+        	StdDraw.setCanvasSize(512, 512);
+        	StdDraw.setPenColor(StdDraw.MAGENTA);
+        	int [] curppowers = new int[3];
+            while (true) {
+            	String bigList[] = new String[7];
+            	String columnList[] = new String[7];
+
+                for (int i = 0; i < bigList.length; i++) {
+                	bigList[i] = Integer.toString(i);
+                	columnList[i] = Integer.toString(i);
+                }
+                
+                String player;
+
+                if (player1) {
+                	player = "Player 1's turn (You are Red):";
+                    curppowers = p1powers;
+                } else {
+                	player = "Player 2's turn (You are Yellow):";
+                    curppowers = p2powers;
+                }
+                StdDraw.setXscale(0, 1);
+                StdDraw.setYscale(0, 1);
+                StdDraw.textLeft(0.05, 0.95, "Move Options");
+                StdDraw.textLeft(0.05, 0.91, "1. Play Normal");
+                StdDraw.textLeft(0.05, 0.87, "2. Play Bomb (" + curppowers[0] + " left)");
+                StdDraw.textLeft(0.05, 0.83, "3. Play Teleportation (" +curppowers[1]+ " left)");
+                StdDraw.textLeft(0.05, 0.79, "4. Play Colour Changer (" +curppowers[2]+ " left)");
+                StdDraw.textLeft(0.05, 0.75, "5. Display Gameboard");
+                StdDraw.textLeft(0.05, 0.71, "6. Load Test File");
+                StdDraw.textLeft(0.05, 0.67, "0. Exit");
+            	String guiInput = (String) JOptionPane.showInputDialog(StdDraw.frame, "Choose your move:", player, JOptionPane.QUESTION_MESSAGE,
+                        null, bigList, "Titan");
+            	int column;
+                switch(Integer.parseInt(guiInput)) {
+                    case 0: Exit();
+                            break;
+                    case 1: StdOut.println("Choose a column to play in:\n");     
+
+	                    	column = Integer.parseInt((String) JOptionPane.showInputDialog(StdDraw.frame, "Choose your column:", player, JOptionPane.QUESTION_MESSAGE,
+	                                null, columnList, "Titan"));
+	                    	ValidateColumn(column);
+	                    	Play(column, grid, player1);
+	                    	if(player1)
+	                    	{
+	                    		player1 = false;
+	                    	}
+	                    	else
+	                    	{
+	                    		player1 = true;
+	                    	}
+                            break;
+
+                    case 2: StdOut.println("Choose a column to play in:");
+							//TODO: Read in chosen column
+							//TODO: Check that value is within the given bounds, check that the data is numeric
+							//TODO: Play bomb disc in chosen column and reduce the number of bombs left
+							//TODO: Check that player has bomb discs left to play, otherwise print out an error message
+			                    if(curppowers[2] == 0)
+			            		{
+			            			// Send error message
+			            			continue;
+			            		}
+			                    column  = Integer.parseInt((String) JOptionPane.showInputDialog(StdDraw.frame, "Choose your column:", player, JOptionPane.QUESTION_MESSAGE,
+			                            null, columnList, "Titan"));
+			                	ValidateColumn(column);
+			                	Bomb(column, grid, player1);
+			                	
+			                	if(player1)
+			                	{
+			                		player1 = false;
+			                		p1powers[0]--;
+			                	}
+			                	else
+			                	{
+			                		player1 = true;
+			                		p2powers[0]--;
+			                	}
+                            break;
+
+                    case 3: StdOut.println("Choose a column to play in:");
+							//TODO: Read in chosen column
+							//TODO: Check that value is within the given bounds, check that the data is numeric
+							//TODO: Play teleport disc in chosen column and reduce the number of teleporters left
+							//TODO: Check that player has teleport discs left to play, otherwise print out an error message
+                            break;
+
+                    case 4: StdOut.println("Choose a column to play in:");
+							//TODO: Read in chosen column
+							//TODO: Check that value is within the given bounds, check that the data is numeric
+							//TODO: Play Colour Change disc in chosen column and reduce the number of colour changers left
+							//TODO: Check that player has Colour Change discs left to play, otherwise print out an error message
+                    		if(curppowers[2] == 0)
+                    		{
+                    			// Send error message
+                    			continue;
+                    		}
+		                    column  = Integer.parseInt((String) JOptionPane.showInputDialog(StdDraw.frame, "Choose your column:", player, JOptionPane.QUESTION_MESSAGE,
+		                            null, columnList, "Titan"));
+		                	ValidateColumn(column);
+		                	Colour_Changer(column, grid, player1);
+		                	
+		                	if(player1)
+		                	{
+		                		player1 = false;
+		                		p1powers[2]--;
+		                	}
+		                	else
+		                	{
+		                		player1 = true;
+		                		p2powers[2]--;
+		                	}
+                            break;
+
+					//This part will be used during testing, please DO NOT change it. This will result in loss of marks
+                    case 5: Display(grid);
+                    		//Displays the current gameboard again, doesn't count as a move, so the player stays the same
+                            player1 = !player1;
+                            break;
+
+					//This part will be used during testing, please DO NOT change it. This will result in loss of marks
+                    case 6: grid = Test(StdIn.readString());
+                    		//Reads in a test file and loads the gameboard from it.
+                            player1 = !player1;
+                            break;
+                    case 7: Save(StdIn.readString(), grid);
+		            player1 = !player1;
+		            break;
+
+					default: 
+							StdOut.println("Please enter a valid option");
+							continue;
+           
+                }
+				//Displays the grid after a new move was played
+                Display(grid);
+				//Checks whether a winning condition was met
+                int win = Check_Win(grid);
+
+                //TODO: Switch the players turns
+
+            }
 
         }
         
@@ -168,16 +313,46 @@ public class connect4 {
      * @param grid  The current board state
      */
     public static void Display (int [][] grid) {
-    	
-    	for(int i = 0; i < X; i++)
+    	if(!GraphicsMode)
     	{
-    		for(int j = 0; j < Y; j++)
-    		{
-    			StdOut.print((char)grid[i][j]);
-    			StdOut.print(" ");
-    		}
-    		StdOut.println("\n");	
+	    	for(int i = 0; i < X; i++)
+	    	{
+	    		for(int j = 0; j < Y; j++)
+	    		{
+	    			StdOut.print((char)grid[i][j]);
+	    			StdOut.print(" ");
+	    		}
+	    		StdOut.println("\n");	
+	    	}    		
     	}
+    	else
+    	{
+    		//Std.setXScale
+        	StdDraw.clear();
+            StdDraw.setPenRadius(0.05);
+            for(int i = X - 1, v = 0; i >= 0 && v < X; i--, v++)
+            {
+            	for(int j = 0 ; j < Y; j++)
+            	{
+            		if(grid[v][j] == 'Y')
+            		{
+            			StdDraw.setPenColor(StdDraw.YELLOW);
+            		}
+            		else if(grid[v][j] == 'R')
+            		{
+            			StdDraw.setPenColor(StdDraw.RED);
+            		}
+            		else
+            		{
+            			StdDraw.setPenColor(StdDraw.MAGENTA);
+            		}
+    		        StdDraw.point((j + 1) * 0.1, (i + 1) * 0.1 - 0.02); 
+    		        
+            	}
+            }
+            
+    	}
+
     	
         //TODO: Display the given board state with empty spots as *, player 1 as R and player 2 as Y. Shows column and row numbers at the top.
     }
@@ -260,7 +435,88 @@ public class connect4 {
         //TODO: Play a bomb in the given column and make an explosion take place. Discs should drop down afterwards. Should not affect the
         //      board state if there's no space in the column. In that case, print the error message: "Column is full."
         //      Leaves behind a normal disc of the player's colour
+    	int letter;
+    	if(player1)
+    	{
+    		letter = 'R';
+    	}
+    	else
+    	{
+    		letter = 'Y';
+    	}
+    	
+    	boolean columnFull = true;
+    	int column = i;
+    	while(columnFull)
+    	{
+    		columnFull = true;
+    		for(int row = X - 1; row >= 0; row--)
+    		{
+    			if(grid[row][column] == 42)
+    			{
+    				columnFull = false;
+    				grid = destroyBomb(column, row, grid);
+    				break;
+    			}
+    		}
+    		if(columnFull)
+    		{
+				StdOut.print("The column you chose is full, please choose another one:");
+				column = StdIn.readInt();   			
+    		}
+
+    	}
         return grid;
+    }
+    
+    public static int [][] destroyBomb(int column, int row, int [][] grid)
+    {
+    	StdOut.println("Column" + column);
+    	StdOut.println("Row" + row);
+
+    	if(row == 5 && column == 6)
+    	{
+        	grid[row - 1][column - 1] = 42;
+        	grid[row][column - 1] = 42;
+    	}
+    	else if(row == 5 && column == 0)
+    	{
+        	grid[row - 1][column + 1] = 42;
+        	grid[row][column + 1] = 42;
+    	}
+    	else if(column == 0 && row != 5)
+    	{
+    		grid[row + 1][column] = 42;
+        	grid[row + 1][column + 1] = 42;
+        	grid[row - 1][column + 1] = 42;
+        	grid[row][column + 1] = 42;
+    	}
+    	else if(column == 6 && row != 5)
+    	{
+        	grid[row + 1][column] = 42;
+        	grid[row + 1][column - 1] = 42;
+        	grid[row - 1][column - 1] = 42;
+        	grid[row][column - 1] = 42;
+    	}
+    	else if(row == 5)
+    	{
+	    	grid[row - 1][column + 1] = 42;
+	    	grid[row - 1][column - 1] = 42;
+	    	grid[row][column + 1] = 42;
+	    	grid[row][column - 1] = 42;      		
+    	}
+    	else
+    	{
+ 	    	grid[row + 1][column] = 42;
+	    	grid[row + 1][column + 1] = 42;
+	    	grid[row + 1][column - 1] = 42;
+	    	grid[row - 1][column + 1] = 42;
+	    	grid[row - 1][column - 1] = 42;
+	    	grid[row][column + 1] = 42;
+	    	grid[row][column - 1] = 42;   		
+    	}
+
+    	return grid;
     }
 
     /**
@@ -290,10 +546,57 @@ public class connect4 {
      * @param player1   The current player
      * @return grid     The modified board state
      */
-    public static int [][] Colour_Changer (int i, int [][] grid, boolean player) {
+    public static int [][] Colour_Changer (int i, int [][] grid, boolean player1) {
         //TODO: Colour Change: If the colour change disc lands on top of another disc, it changes the colour of that
         //      disc to the opposite colour. The power disc does not remain.
         //      If the colour change disc lands on the bottom row, it must leave a disc of the current player’s colour.
+    	
+    	int letter;
+    	if(player1)
+    	{
+    		letter = 'R';
+    	}
+    	else
+    	{
+    		letter = 'Y';
+    	}
+    	
+    	boolean columnFull = true;
+    	int column = i;
+    	while(columnFull)
+    	{
+    		columnFull = true;
+    		for(int row = X - 2; row >= 0; row--)
+    		{
+    			if(grid[5][column] == 42)
+    			{
+    				columnFull = false;
+    				grid[5][column] = letter;
+    				break;
+    			}
+    			else if(grid[row][column] == 42)
+    			{ 
+    				
+    				columnFull = false;
+    				if(grid[row + 1][column] == 'Y')
+    				{
+    					grid[row + 1][column] = 'R';
+    				}
+    				else
+    				{
+    					grid[row + 1][column] = 'Y';
+    				}
+    				break;
+    			}
+    		}
+    		if(columnFull)
+    		{
+				StdOut.print("The column you chose is full, please choose another one:");
+				column = StdIn.readInt();   			
+    		}
+
+    	}
+        //TODO: Play a normal disc of the given colour, if the column is full, print out the message: "Column is full."
         return grid;
     }
 
